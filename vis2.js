@@ -8,7 +8,7 @@ d3.csv("./data/downsampled_zomato.csv").then(function (data) {
           json[key].push(d[key]);
         });
       });
-   let fix_cuisine = "northindian";
+   let fix_cuisine = "mughlai"; // should be variable.. hardcoded now.
 //   online - book table
    let YY = 0;
    let YN = 0;
@@ -30,7 +30,7 @@ d3.csv("./data/downsampled_zomato.csv").then(function (data) {
       });
 
       if(cuisineExist){
-        // console.log("i: ",i);
+        console.log("i: ",i);
         // console.log(typeof json["online_order"][i]);
         if(json["online_order"][i].toLowerCase() == 'yes' && json["book_table"][i].toLowerCase() == "yes"){
              YY += 1;  
@@ -75,6 +75,19 @@ option = {
     top: '5%',
     left: 'center'
   },
+  graphic: [
+    {
+      type: 'text',
+      left: 'center',
+      top: 'center',
+      style: {
+        text: 'Avg. rating for corresponding sections written on the donut',
+        textAlign: 'center',
+        fill: '#000',
+        fontSize: 10
+      }
+    }
+  ],
   series: [
     {
       name: 'Access From',

@@ -79,7 +79,7 @@ d3.csv("./data/downsampled_zomato.csv").then(function (data) {
     ["index 2", []],
     ["index 3", []],
   ]);
-  console.log(newMap);
+  console.log("---------------------------",newMap);
 
   for (const [key, arr] of map) {
     for (let i = 0; i < arr.length; i++) {
@@ -129,7 +129,7 @@ d3.csv("./data/downsampled_zomato.csv").then(function (data) {
     ],
     series: [
       {
-        name: "below 3",
+        name: " Rating: < 3",
         type: "bar",
         stack: "Ad",
         emphasis: {
@@ -138,7 +138,7 @@ d3.csv("./data/downsampled_zomato.csv").then(function (data) {
         data: newMap.get("index 0"),
       },
       {
-        name: "Between 3 and 3.5",
+        name: "Rating: 3-3.5",
         type: "bar",
         stack: "Ad",
         label: {show: false,text: "cfy" },
@@ -148,7 +148,7 @@ d3.csv("./data/downsampled_zomato.csv").then(function (data) {
         data: newMap.get("index 1"),
       },
       {
-        name: "Between 3.5 and 4",
+        name: "Rating: 3.5-4",
         type: "bar",
         stack: "Ad",
         emphasis: {
@@ -156,7 +156,7 @@ d3.csv("./data/downsampled_zomato.csv").then(function (data) {
         },
         data: newMap.get("index 2"),
       },{
-        name: "Above 4",
+        name: "Rating: >4",
         type: "bar",
         stack: "Ad",
         emphasis: {
