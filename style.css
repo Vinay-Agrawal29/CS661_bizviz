@@ -2,8 +2,33 @@
   margin: 0;
   padding: 0;
 }
-#chart-container {
-  position: relative;
-  height: 100vh;
-  overflow: hidden;
+
+.kcontainer {
+  display: flex;
+  padding: 20px;
+}
+
+.chart-container {
+  width: 75%;
+  padding: 10px;
+  background-color: aliceblue;
+  /* border: 1px solid black; */
+}
+
+.user-input {
+  width: 25%;
+  padding: 20px;
+  background-color: rgb(255, 240, 240);
+  /* border: 1px solid black; */
+}
+
+.already {
+  display: flex;
+}
+
+.labels {
+  display: flex;
+  justify-content: center;
+  gap: 140px;
+  font-size: 12px;
 }
