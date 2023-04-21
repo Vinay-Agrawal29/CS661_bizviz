@@ -71,7 +71,7 @@ function showGraph() {
 
     var bar = document.getElementById("bar-container");
     bar.style.display = "block";
-    bar.style.height = "82vh";
+    bar.style.height = "84vh";
     bar.style.width = "90%";
 
     const carouselItemWidth =
@@ -135,7 +135,7 @@ function showGraph() {
         [...uniqueCount.entries()].sort((a, b) => b[1] - a[1])
       );
 
-      const top9cuisines = [...sortedUniqueCount.keys()].slice(0, 9);
+      const top9cuisines = [...sortedUniqueCount.keys()].slice(0, 10);
       const counts = top9cuisines.map((key) => sortedUniqueCount.get(key));
 
       let map = new Map();
@@ -170,6 +170,7 @@ function showGraph() {
       }
 
       ////console.log(map);
+      // console.log(map);
 
       const newMap = new Map([
         ["index 0", []],
@@ -184,7 +185,7 @@ function showGraph() {
           newMap.get(`index ${i}`).push(arr[i]);
         }
       }
-
+      // console.log(newMap.get("index0"));
       var dom = document.getElementById("bar-container");
       var myChart = echarts.init(dom, null, {
         renderer: "canvas",
@@ -218,11 +219,23 @@ function showGraph() {
           {
             type: "category",
             data: top9cuisines,
+            name: "Top 10 Cuisines",
+            nameLocation: 'middle', 
+            nameTextStyle: {
+              fontWeight: 'bold' 
+          },
+          nameGap: 26 
           },
         ],
         yAxis: [
           {
             type: "value",
+            name: "Number of Restaurants",
+            nameLocation: 'middle', 
+            nameTextStyle: {
+              fontWeight: 'bold' 
+          },
+          nameGap: 46 
           },
         ],
         series: [
@@ -230,16 +243,20 @@ function showGraph() {
             name: " Rating: < 3",
             type: "bar",
             stack: "Ad",
+            label: {
+              show: true,
+              position: 'inside'},
             emphasis: {
               focus: "series",
             },
-            data: newMap.get("index 0"),
+            data: newMap.get("index 0")
+            
           },
           {
             name: "Rating: 3-3.5",
             type: "bar",
             stack: "Ad",
-            label: { show: false, text: "cfy" },
+            label: { show: true},
             emphasis: {
               focus: "series",
             },
@@ -249,15 +266,17 @@ function showGraph() {
             name: "Rating: 3.5-4",
             type: "bar",
             stack: "Ad",
+            label: { show: true},
             emphasis: {
               focus: "series",
             },
             data: newMap.get("index 2"),
           },
           {
-            name: "Rating: >4",
+            name: "Rating: > 4",
             type: "bar",
             stack: "Ad",
+            label: { show: true},
             emphasis: {
               focus: "series",
             },
@@ -285,7 +304,7 @@ function showGraph() {
 
     var pie = document.getElementById("pie-container");
     pie.style.display = "block";
-    pie.style.height = "82vh";
+    pie.style.height = "84vh";
     pie.style.width = "90%";
 
     pieLabel.innerHTML =
@@ -293,7 +312,7 @@ function showGraph() {
 
     var grid = document.getElementById("grid-container");
     grid.style.display = "block";
-    grid.style.height = "82vh";
+    grid.style.height = "84vh";
     grid.style.width = "90%";
 
     gridLabel.innerHTML =
@@ -404,19 +423,6 @@ function showGraph() {
           top: "5%",
           left: "center",
         },
-        // graphic: [
-        //   {
-        //     type: "text",
-        //     left: "center",
-        //     top: "center",
-        //     style: {
-        //       text: "Avg. rating for corresponding sections written on the donut",
-        //       textAlign: "center",
-        //       fill: "#000",
-        //       fontSize: 10,
-        //     },
-        //   },
-        // ],
         series: [
           {
             name: "Access From",
