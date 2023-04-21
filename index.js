@@ -1,3 +1,9 @@
+const carouselTrack = document.querySelector(".carousel-track");
+const carouselPrevButton = document.querySelector(".carousel-prev-button");
+const carouselNextButton = document.querySelector(".carousel-next-button");
+
+let carouselIndex = 0;
+
 var chart = document.getElementById("charts");
 var home = document.getElementById("home");
 chart.style.display = "none";
@@ -39,10 +45,10 @@ function showGraph() {
   var gridLabel = document.getElementById("grid-label");
   pieLabel.style.zIndex = "2";
 
-  console.log("--", category, subcategory);
+  //console.log("--", category, subcategory);
 
   if (category == "") {
-    console.log("----");
+    //console.log("----");
     subcategoryEle.style.display = "none";
   }
   if (subcategory == "") {
@@ -67,6 +73,31 @@ function showGraph() {
     bar.style.display = "block";
     bar.style.height = "82vh";
     bar.style.width = "90%";
+
+    const carouselItemWidth =
+      document.querySelector(".carousel-item").offsetWidth;
+
+    carouselPrevButton.addEventListener("click", () => {
+      console.log("carousel", carouselItemWidth);
+      if (carouselIndex > 0) {
+        console.log(">0");
+        carouselIndex--;
+        carouselTrack.style.transform = `translateX(-${
+          carouselIndex * carouselItemWidth
+        }px)`;
+      }
+    });
+
+    carouselNextButton.addEventListener("click", () => {
+      console.log("clicked");
+      if (carouselIndex < 1) {
+        console.log("<1");
+        carouselIndex++;
+        carouselTrack.style.transform = `translateX(-${
+          carouselIndex * carouselItemWidth
+        }px)`;
+      }
+    });
     // BAR CHART
     d3.csv("./data/downsampled_zomato.csv").then(function (data) {
       var json = {};
@@ -80,11 +111,12 @@ function showGraph() {
         });
       });
 
-      //console.log("json keys: ", Object.keys(json));
+      ////console.log("json keys: ", Object.keys(json));
 
       cuisines = json["cuisines"];
+
       let targetArray = [];
-      //console.log(cuisines[0]);
+      ////console.log(cuisines[0]);
       for (let i = 0; i < cuisines.length; i++) {
         let arr = cuisines[i].split(", ");
 
@@ -119,7 +151,7 @@ function showGraph() {
             return cleanedCuisine == top9cuisines[j];
           });
           if (cuisineExist) {
-            //console.log("rate",rate.slice(0,3));
+            ////console.log("rate",rate.slice(0,3));
             let rate_float = parseFloat(rate.slice(0, 3));
 
             if (rate_float <= 3) {
@@ -134,10 +166,10 @@ function showGraph() {
           }
         }
         map.set(top9cuisines[j], count_rate);
-        //console.log("count rate: ", count_rate);
+        ////console.log("count rate: ", count_rate);
       }
 
-      //console.log(map);
+      ////console.log(map);
 
       const newMap = new Map([
         ["index 0", []],
@@ -145,7 +177,7 @@ function showGraph() {
         ["index 2", []],
         ["index 3", []],
       ]);
-      //console.log("---------------------------",newMap);
+      ////console.log("---------------------------",newMap);
 
       for (const [key, arr] of map) {
         for (let i = 0; i < arr.length; i++) {
@@ -243,6 +275,8 @@ function showGraph() {
   }
 
   if (category == "business" && subcategory == "already") {
+    home.style.display = "none";
+    chart.style.display = "block";
     title.innerHTML = "Comparison based Performance Analysis";
     pieLabel.style.display = "block";
     gridLabel.style.display = "block";
@@ -316,8 +350,8 @@ function showGraph() {
         });
 
         if (cuisineExist) {
-          //console.log("i: ",i);
-          // //console.log(typeof json["online_order"][i]);
+          ////console.log("i: ",i);
+          // ////console.log(typeof json["online_order"][i]);
           if (
             json["online_order"][i].toLowerCase() == "yes" &&
             json["book_table"][i].toLowerCase() == "yes"
@@ -351,7 +385,7 @@ function showGraph() {
           }
         }
       }
-      //console.log("YY, YN, NY, NN", ratingYY,ratingYN,ratingNY,ratingNN);
+      ////console.log("YY, YN, NY, NN", ratingYY,ratingYN,ratingNY,ratingNN);
 
       var dom = document.getElementById("pie-container");
       var myChart = echarts.init(dom, null, {
@@ -492,7 +526,7 @@ function showGraph() {
           }
         }
       }
-      //console.log("--------------------------", targetArray);
+      ////console.log("--------------------------", targetArray);
       const frequencyMap = targetArray.reduce((map, val) => {
         const key = val.toLowerCase().replace(/\s+/g, "");
         map[key] = (map[key] || 0) + 1;
@@ -500,17 +534,17 @@ function showGraph() {
       }, {});
 
       delete frequencyMap[""];
-      //console.log("frequenct map",frequencyMap);
+      ////console.log("frequenct map",frequencyMap);
       const mapSize = Object.keys(frequencyMap).length;
 
       let final_freq_map = new Map();
 
       if (mapSize <= 225) {
         // pick all key-value pairs
-        //console.log("actually less that");
+        ////console.log("actually less that");
         final_freq_map = frequencyMap;
 
-        // //console.log(allKeyValuePairs);
+        // ////console.log(allKeyValuePairs);
       } else {
         const keys = Object.keys(frequencyMap);
         const randomKeys = [];
@@ -521,10 +555,10 @@ function showGraph() {
           final_freq_map[randomKey] = frequencyMap[randomKey];
         }
       }
-      //console.log("final mapping::::::", final_freq_map);
+      ////console.log("final mapping::::::", final_freq_map);
       const keys = Object.keys(frequencyMap);
       const randomKey = keys[Math.floor(Math.random() * keys.length)];
-      //   //console.log("rand", randomKey);
+      //   ////console.log("rand", randomKey);
 
       var dom = document.getElementById("grid-container");
       var myChart = echarts.init(dom, null, {
@@ -573,13 +607,13 @@ function showGraph() {
       const data = [];
       const final_freq_map_values = Object.values(final_freq_map);
       let final_freq_map_keys = Object.keys(final_freq_map).sort();
-      //console.log("keys", final_freq_map_keys.sort());
+      ////console.log("keys", final_freq_map_keys.sort());
       let key_ind = 0;
       for (let i = 0; i < 15; i++) {
         // loop over the columns
         for (let j = 0; j < 15; j++) {
           if (Object.keys(final_freq_map).length <= 0) {
-            //console.log("empty map");
+            ////console.log("empty map");
             break;
           }
 
@@ -594,7 +628,7 @@ function showGraph() {
         }
       }
       key_ind = 0;
-      //console.log("data: ",data[7]);
+      ////console.log("data: ",data[7]);
       option = {
         tooltip: {
           position: "top",

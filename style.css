@@ -51,16 +51,39 @@
   height: 150px;
   background-color: white;
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
-}
-
-.title {
-  text-align: center;
-  padding: 10px 0;
-}
-
-.label {
   text-align: center;
   padding: 20px;
-  font-size: 24px;
-  font-weight: bolder;
+}
+
+.carousel-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.carousel-track {
+  display: flex;
+  transition: transform 0.3s ease;
+}
+
+.carousel-item {
+  flex: 0 0 100%; /* set width of carousel items */
+}
+
+.carousel-prev-button,
+.carousel-next-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  font-size: 2em;
+  cursor: pointer;
+}
+
+.carousel-prev-button {
+  left: 0;
+}
+
+.carousel-next-button {
+  right: 0;
 }
