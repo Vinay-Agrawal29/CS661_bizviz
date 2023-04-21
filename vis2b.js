@@ -9,8 +9,8 @@ d3.csv("./data/downsampled_zomato.csv").then(function (json_data) {
     });
   });
 
-  let fix_cuisine = "northindian"; // should be variable.. hardcoded now.
-  let fix_rate = 3.5; // should be variable.. hardcoded now.
+  let fix_cuisine = "desserts"; // should be variable.. hardcoded now.
+  let fix_rate = 2.6; // should be variable.. hardcoded now.
   let targetArray = [];
   let count = 0;
   for (let i = 0; i < json["cuisines"].length; i++) {
@@ -25,10 +25,7 @@ d3.csv("./data/downsampled_zomato.csv").then(function (json_data) {
     });
 
     if (cuisineExist) {
-      //   console.log(json["rate"][i]);
-      // console.log(i);
       if (parseFloat(json["rate"][i].slice(0, 3)) > fix_rate) {
-        // console.log(typeof json["dish_liked"][i]);
         let arr = json["dish_liked"][i].split(", ");
 
         arr.forEach(function (item) {
@@ -44,44 +41,33 @@ d3.csv("./data/downsampled_zomato.csv").then(function (json_data) {
     return map;
   }, {});
 
-  //   console.log(frequencyMap);
   delete frequencyMap[""];
-  console.log(frequencyMap);
-
-  //   const mapSize = frequencyMap.size;
+  console.log("frequenct map",frequencyMap);
   const mapSize = Object.keys(frequencyMap).length;
-  //   console.log(numberOfKeys);
 
-  const final_freq_map = new Map();
+  let final_freq_map = new Map();
 
-  if (mapSize <= 400) {
+  if (mapSize <= 225) {
     // pick all key-value pairs
+    console.log("actually less that");
+    final_freq_map = frequencyMap
 
-    final_freq_map = Object.entries(frequencyMap);
     // console.log(allKeyValuePairs);
   } else {
-    // pick random 400 key-value pairs
-    // const randomKeyValuePairs = new Map();
     const keys = Object.keys(frequencyMap);
     const randomKeys = [];
-
-    while (randomKeys.length < 400) {
+    
+    while (Object.keys(final_freq_map).length < 225) {
       const randomIndex = Math.floor(Math.random() * mapSize);
       const randomKey = keys[randomIndex];
-
-      if (!randomKeys.includes(randomKey)) {
-        randomKeys.push(randomKey);
-        final_freq_map.set(randomKey, frequencyMap[randomKey]);
-      }
+        final_freq_map[randomKey] = frequencyMap[randomKey];
     }
 
-    // console.log(randomKeyValuePairs);
   }
-
-  console.log("final mapping:::::::::::::::::", final_freq_map);
+  console.log("final mapping::::::", final_freq_map);
   const keys = Object.keys(frequencyMap);
   const randomKey = keys[Math.floor(Math.random() * keys.length)];
-  console.log("rand", randomKey);
+//   console.log("rand", randomKey);
 
   var dom = document.getElementById("chart-container");
   var myChart = echarts.init(dom, null, {
@@ -92,42 +78,48 @@ d3.csv("./data/downsampled_zomato.csv").then(function (json_data) {
 
   var option;
 
-  // prettier-ignore
   const hours = [
-    '1', '2', '3', '4', '5', '6' , '7','8','9','10','11','12','13', '14','15','16','17','18','19','20'
+    '1', '2', '3', '4', '5', '6' , '7','8','9','10','11','12','13', '14','15'
+    
 ];
-  // prettier-ignore
   const days = [
 
-    '1', '2', '3', '4', '5', '6' , '7','8','9','10','11','12','13', '14','15','16','17','18','19','20'
+    '1', '2', '3', '4', '5', '6' , '7','8','9','10','11','12','13', '14','15'
 ];
  
-
   const data = [];
-  for (let i = 0; i < 20; i++) {
+const final_freq_map_values = Object.values(final_freq_map);
+let final_freq_map_keys = Object.keys(final_freq_map).sort();
+console.log("keys", final_freq_map_keys.sort());
+let key_ind=0;
+  for (let i = 0; i < 15; i++) {
     // loop over the columns
-
-    for (let j = 0; j < 20; j++) {
-    //   const keys = Object.keys(final_freq_map);
-    //   const randomKey = keys[Math.floor(Math.random() * keys.length)];
-    const randomKey = Array.from(final_freq_map.keys())[Math.floor(Math.random() * final_freq_map.size)];
-    const randomValue = final_freq_map.get(randomKey);
-    console.log(randomKey);
-        
+    for (let j = 0; j < 15; j++) {
+        if(Object.keys(final_freq_map).length<=0){
+            console.log("empty map");
+            break;
+        }
+    
+    const randomKey = final_freq_map_keys[key_ind++];
+    
+    const randomValue = final_freq_map[randomKey];
       const cellName = randomKey;
       const value = randomValue;
-      const obj = { name: cellName, value: [i, j, value] };
+      const obj = { name: cellName, value: [j, i, value] };
       data.push(obj);
-      final_freq_map.delete(randomKey);
+      delete final_freq_map[randomKey];
+
+
     }
   }
-  console.log("final data", data);
+key_ind = 0;
+  console.log("data: ",data[7]);
   option = {
     tooltip: {
       position: "top",
     },
     grid: {
-      height: "50%",
+      height: "70%",
       top: "10%",
     },
     xAxis: {
@@ -145,16 +137,16 @@ d3.csv("./data/downsampled_zomato.csv").then(function (json_data) {
       },
     },
     visualMap: {
-      min: 0,
-      max: 50,
+      min: Math.min(...final_freq_map_values),
+      max: Math.max(...final_freq_map_values)/3,
       calculable: true,
       orient: "horizontal",
       left: "center",
-      bottom: "15%",
+      bottom: "5%",
+      width:"100%",
     },
     series: [
       {
-        //   name: 'Punch Card',
         type: "heatmap",
         data: data,
         label: {
@@ -166,21 +158,8 @@ d3.csv("./data/downsampled_zomato.csv").then(function (json_data) {
             shadowColor: "rgba(0, 0, 0, 0.5)",
           },
         },
-        //   ,
-        //   formatter: function(params) {
-        //     return 'vinay' + params.value[2];
-        //   }
       },
     ],
-    // series: [{
-    //     type: 'heatmap',
-    //     data: [
-    //       [{value: 10, name: 'Cell 1'}, {value: 20, name: 'Cell 2'}, {value: 30, name: 'Cell 3'}],
-    //       [{value: 40, name: 'Cell 4'}, {value: 50, name: 'Cell 5'}, {value: 60, name: 'Cell 6'}],
-    //       [{value: 70, name: 'Cell 7'}, {value: 80, name: 'Cell 8'}, {value: 90, name: 'Cell 9'}]
-    //     ],
-    //     label: {show: true}
-    //   }]
   };
 
   if (option && typeof option === "object") {
