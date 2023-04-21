@@ -1,7 +1,17 @@
+var chart = document.getElementById("charts");
+var home = document.getElementById("home");
+chart.style.display = "none";
+
 function showOptions() {
   var category = document.getElementById("category").value;
   var subCategoryLabel = document.getElementById("sub-category-label");
   var subCategory = document.getElementById("sub-category");
+  if (category == "") {
+    chart.style.display = "none";
+    home.style.display = "block";
+    subCategoryLabel.style.display = "none";
+    subCategory.style.display = "none";
+  }
   if (category === "business") {
     subCategory.innerHTML =
       '<option value="">Select</option><option value="new">Setting up New Restaurant</option><option value="already">Already Existing Restraunt</option>';
@@ -22,15 +32,26 @@ function showOptions() {
 function showGraph() {
   var category = document.getElementById("category").value;
   var subcategory = document.getElementById("sub-category").value;
+  var subcategoryEle = document.getElementById("options");
   var coptionsEle = document.getElementById("c-options");
   var title = document.getElementById("chart-title");
   var pieLabel = document.getElementById("pie-label");
   var gridLabel = document.getElementById("grid-label");
   pieLabel.style.zIndex = "2";
 
-  console.log(category, subcategory);
+  console.log("--", category, subcategory);
+
+  if (category == "") {
+    console.log("----");
+    subcategoryEle.style.display = "none";
+  }
+  if (subcategory == "") {
+    coptionsEle.style.display = "none";
+  }
 
   if (category == "business" && subcategory == "new") {
+    home.style.display = "none";
+    chart.style.display = "block";
     title.innerHTML = "Identifying Popular Cuisines";
 
     pieLabel.style.display = "none";
@@ -41,7 +62,6 @@ function showGraph() {
     grid.style.display = "none";
 
     coptionsEle.style.display = "none";
-    
 
     var bar = document.getElementById("bar-container");
     bar.style.display = "block";
@@ -234,14 +254,16 @@ function showGraph() {
     pie.style.height = "82vh";
     pie.style.width = "90%";
 
-    pieLabel.innerHTML = "*Average Rating of each section is written on the donut chart";
+    pieLabel.innerHTML =
+      "*Average Rating of each section is written on the donut chart";
 
     var grid = document.getElementById("grid-container");
     grid.style.display = "block";
     grid.style.height = "82vh";
     grid.style.width = "90%";
 
-    gridLabel.innerHTML = "*Select count of dishes liked served by better performing similar restaurants";
+    gridLabel.innerHTML =
+      "*Select count of dishes liked served by better performing similar restaurants";
 
     var cCategory = document.getElementById("c-category");
     document.getElementById("c-options").style.display = "block";
