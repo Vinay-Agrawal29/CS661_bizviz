@@ -17,6 +17,8 @@ function showOptions() {
     home.style.display = "block";
     subCategoryLabel.style.display = "none";
     subCategory.style.display = "none";
+    var coptionsEle = document.getElementById("c-options");
+    coptionsEle.style.display = "none";
   }
   if (category === "business") {
     subCategory.innerHTML =
@@ -32,12 +34,22 @@ function showOptions() {
     var title = document.getElementById("chart-title");
     title.innerHTML = "Top Restaurants based on the location and cuisines";
 
+    var coptionsEle = document.getElementById("c-options");
+    coptionsEle.style.display = "none";
+
+
+    var pieLabel = document.getElementById("pie-label");
+    var gridLabel = document.getElementById("grid-label");
+    pieLabel.style.display = "none";
+    gridLabel.style.display = "none";
     var pie = document.getElementById("pie-container");
     pie.style.display = "none";
     var grid = document.getElementById("grid-container");
     grid.style.display = "none";
     var bar = document.getElementById("bar-container");
     bar.style.display = "none";
+    var line = document.getElementById("line-container");
+    line.style.display = "none";
 
     var tree = document.getElementById("tree-container");
     tree.style.display = "block";
@@ -45,7 +57,7 @@ function showOptions() {
     tree.style.width = "90%";
     d3.csv("./data/downsampled_zomato.csv").then(function (item) {
       var json = {};
-    
+
       item.forEach(function (d) {
         Object.keys(d).forEach(function (key) {
           if (!json[key]) {
@@ -54,34 +66,35 @@ function showOptions() {
           json[key].push(d[key]);
         });
       });
-    
-      //   console.log("json: ", json);
-    
+
+      //   //console.log("json: ", json);
+
       const uniqueCount = json["location"].reduce((countMap, str) => {
         const key = str.toLowerCase().replace(/\s+/g, "");
         countMap.set(key, (countMap.get(key) || 0) + 1);
         return countMap;
       }, new Map());
-    
+
       const sortedUniqueCount = new Map(
         [...uniqueCount.entries()].sort((a, b) => b[1] - a[1])
       );
       const top10location = [...sortedUniqueCount.keys()].slice(0, 5);
-      //   console.log("10rest: ", top10location);
-    
+      //   //console.log("10rest: ", top10location);
+
       let location_wise_cuisines = new Map();
       for (let i = 0; i < 5; i++) {
         //location
-        // console.log("1st loop");
+        // //console.log("1st loop");
         let pick_location = top10location[i];
         let temp = [];
-    
+
         for (let j = 0; j < json["cuisines"].length; j++) {
           // cuisines
           if (
-            pick_location == json["location"][j].toLowerCase().replace(/\s+/g, "")
+            pick_location ==
+            json["location"][j].toLowerCase().replace(/\s+/g, "")
           ) {
-            // console.log("if condition");
+            // //console.log("if condition");
             let list_cuisine = json["cuisines"][j].split(",");
             list_cuisine.forEach((cuisine) => {
               const cleanedCuisine = cuisine.toLowerCase().replace(/\s+/g, "");
@@ -89,96 +102,102 @@ function showOptions() {
             });
           }
         }
-        // console.log("temp: ", temp);
+        // //console.log("temp: ", temp);
         const uniqueCount = temp.reduce((countMap, str) => {
           const key = str.toLowerCase().replace(/\s+/g, "");
           countMap.set(key, (countMap.get(key) || 0) + 1);
           return countMap;
         }, new Map());
-    
+
         const sortedUniqueCount = new Map(
           [...uniqueCount.entries()].sort((a, b) => b[1] - a[1])
         );
-    
+
         const top5cuisines = [...sortedUniqueCount.keys()].slice(0, 5);
         const counts = top5cuisines.map((key) => sortedUniqueCount.get(key));
-    
+
         let pick_loca_dict = new Map();
         for (let j = 0; j < 5; j++) {
           let res_name = new Map();
           for (let k = 0; k < json["cuisines"].length; k++) {
             //resturant name
             let cuisine_list = json["cuisines"][k].split(",");
-    
+
             let cuisineExist = cuisine_list.some((cuisine) => {
               const cleanedCuisine = cuisine.toLowerCase().replace(/\s+/g, "");
               return cleanedCuisine == top5cuisines[j];
             });
             if (
               cuisineExist &&
-              json["location"][k].toLowerCase().replace(/\s+/g, "") == pick_location
+              json["location"][k].toLowerCase().replace(/\s+/g, "") ==
+                pick_location
             ) {
               if (!isNaN(parseFloat(json["votes"][k])))
                 res_name[json["name"][k]] = parseFloat(json["votes"][k]);
             }
           }
-          //   console.log("res name: ",res_name);
+          //   //console.log("res name: ",res_name);
           const top5rest = Object.entries(res_name)
             .sort((a, b) => b[1] - a[1])
             .slice(0, 3)
             .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {});
-    
-        //   console.log("top 5 rest: ", top5rest);
+
+          //   //console.log("top 5 rest: ", top5rest);
           pick_loca_dict[top5cuisines[j]] = top5rest;
         }
         location_wise_cuisines[pick_location] = pick_loca_dict;
       }
-    
+
       //// finding location based on cuisine on a location
-    
+
       var dom = document.getElementById("tree-container");
       var myChart = echarts.init(dom, null, {
         renderer: "canvas",
         useDirtyRect: false,
       });
       var app = {};
-    //   console.log('location wise cuisine', location_wise_cuisines)
+      //   //console.log('location wise cuisine', location_wise_cuisines)
       let data1 = new Map();
       data1["name"] = "Locations";
-    
+
       let tempc = [];
-    
+
       for (let x = 0; x < 5; x++) {
         let dictx = new Map();
         dictx["name"] = top10location[x];
         val_arr = [];
         nameofcusine = Object.keys(location_wise_cuisines[top10location[x]]);
-    
+
         for (let y = 0; y < nameofcusine.length; y++) {
           let dicty = new Map();
           dicty["name"] = nameofcusine[y];
-        //   dicty["value"] =
-        restaurant_keys_forcuisine = Object.keys(location_wise_cuisines[top10location[x]][nameofcusine[y]]);
-        // console.log(location_wise_cuisines[top10location[x]][nameofcusine[y]])
-        // console.log(restaurant_keys_forcuisine.length, 'key length');
-        valt =[];
-            for(let r=0; r<restaurant_keys_forcuisine.length; r++){
-                let dictr = new Map();
-                dictr['name'] = restaurant_keys_forcuisine[r];
-                dictr['value'] = location_wise_cuisines[top10location[x]][nameofcusine[y]][restaurant_keys_forcuisine[r]];
-                valt.push(dictr)
-            }
-            dicty['children'] = valt; 
+          //   dicty["value"] =
+          restaurant_keys_forcuisine = Object.keys(
+            location_wise_cuisines[top10location[x]][nameofcusine[y]]
+          );
+          // //console.log(location_wise_cuisines[top10location[x]][nameofcusine[y]])
+          // //console.log(restaurant_keys_forcuisine.length, 'key length');
+          valt = [];
+          for (let r = 0; r < restaurant_keys_forcuisine.length; r++) {
+            let dictr = new Map();
+            dictr["name"] = restaurant_keys_forcuisine[r];
+            dictr["value"] =
+              location_wise_cuisines[top10location[x]][nameofcusine[y]][
+                restaurant_keys_forcuisine[r]
+              ];
+            valt.push(dictr);
+          }
+          dicty["children"] = valt;
           val_arr.push(dicty);
         }
         dictx["children"] = val_arr;
         tempc.push(dictx);
       }
       data1["children"] = tempc;
-    //   console.log("data 1 value is", data1);
-    
+      //   //console.log("data 1 value is", data1);
+
       var option;
-    
+
       option = {
         tooltip: {
           trigger: "item",
@@ -215,27 +234,28 @@ function showOptions() {
                 align: "left",
               },
             },
-            tooltip:{crossStyle:{
-                width: 45
-            }},
+            tooltip: {
+              crossStyle: {
+                width: 45,
+              },
+            },
             emphasis: {
               focus: "descendant",
             },
-            
+
             expandAndCollapse: true,
             animationDuration: 550,
             animationDurationUpdate: 750,
           },
         ],
       };
-    
+
       if (option && typeof option === "object") {
         myChart.setOption(option);
       }
-    
+
       window.addEventListener("resize", myChart.resize);
     });
-    
   } else {
     subCategory.innerHTML = '<option value="">Select</option>';
     subCategoryLabel.style.display = "block";
@@ -254,10 +274,10 @@ function showGraph() {
   var gridLabel = document.getElementById("grid-label");
   pieLabel.style.zIndex = "2";
 
-  //console.log("--", category, subcategory);
+  ////console.log("--", category, subcategory);
 
   if (category == "") {
-    //console.log("----");
+    ////console.log("----");
     subcategoryEle.style.display = "none";
   }
   if (subcategory == "") {
@@ -277,36 +297,47 @@ function showGraph() {
     grid.style.display = "none";
     var tree = document.getElementById("tree-container");
     tree.style.display = "none";
+    var line = document.getElementById("line-container");
+    line.style.display = "none";
 
     coptionsEle.style.display = "none";
+
+    const carouselItemWidth =
+      document.querySelector(".carousel-item").offsetWidth;
 
     var bar = document.getElementById("bar-container");
     bar.style.display = "block";
     bar.style.height = "84vh";
     bar.style.width = "90%";
 
-    const carouselItemWidth =
-      document.querySelector(".carousel-item").offsetWidth;
+    var line = document.getElementById("line-container");
+    line.style.display = "none";
+    line.style.height = "84vh";
+    line.style.width = "90%";
 
     carouselPrevButton.addEventListener("click", () => {
-      console.log("carousel", carouselItemWidth);
+      //console.log("carousel", carouselItemWidth);
       if (carouselIndex > 0) {
-        console.log(">0");
         carouselIndex--;
         carouselTrack.style.transform = `translateX(-${
           carouselIndex * carouselItemWidth
         }px)`;
+        console.log(carouselIndex);
+        line.style.display = "none";
+        bar.style.display = "block";
       }
     });
 
     carouselNextButton.addEventListener("click", () => {
-      console.log("clicked");
+      //console.log("clicked");
       if (carouselIndex < 1) {
-        console.log("<1");
         carouselIndex++;
         carouselTrack.style.transform = `translateX(-${
           carouselIndex * carouselItemWidth
         }px)`;
+        console.log(carouselIndex);
+        bar.style.display = "none";
+        line.style.display = "block";
       }
     });
     // BAR CHART
@@ -322,12 +353,12 @@ function showGraph() {
         });
       });
 
-      ////console.log("json keys: ", Object.keys(json));
+      //////console.log("json keys: ", Object.keys(json));
 
       cuisines = json["cuisines"];
 
       let targetArray = [];
-      ////console.log(cuisines[0]);
+      //////console.log(cuisines[0]);
       for (let i = 0; i < cuisines.length; i++) {
         let arr = cuisines[i].split(", ");
 
@@ -362,7 +393,7 @@ function showGraph() {
             return cleanedCuisine == top9cuisines[j];
           });
           if (cuisineExist) {
-            ////console.log("rate",rate.slice(0,3));
+            //////console.log("rate",rate.slice(0,3));
             let rate_float = parseFloat(rate.slice(0, 3));
 
             if (rate_float <= 3) {
@@ -377,11 +408,11 @@ function showGraph() {
           }
         }
         map.set(top9cuisines[j], count_rate);
-        ////console.log("count rate: ", count_rate);
+        //////console.log("count rate: ", count_rate);
       }
 
-      ////console.log(map);
-      // console.log(map);
+      //////console.log(map);
+      // //console.log(map);
 
       const newMap = new Map([
         ["index 0", []],
@@ -389,14 +420,14 @@ function showGraph() {
         ["index 2", []],
         ["index 3", []],
       ]);
-      ////console.log("---------------------------",newMap);
+      //////console.log("---------------------------",newMap);
 
       for (const [key, arr] of map) {
         for (let i = 0; i < arr.length; i++) {
           newMap.get(`index ${i}`).push(arr[i]);
         }
       }
-      // console.log(newMap.get("index0"));
+      // //console.log(newMap.get("index0"));
       var dom = document.getElementById("bar-container");
       var myChart = echarts.init(dom, null, {
         renderer: "canvas",
@@ -431,22 +462,22 @@ function showGraph() {
             type: "category",
             data: top9cuisines,
             name: "Top 10 Cuisines",
-            nameLocation: 'middle', 
+            nameLocation: "middle",
             nameTextStyle: {
-              fontWeight: 'bold' 
-          },
-          nameGap: 26 
+              fontWeight: "bold",
+            },
+            nameGap: 26,
           },
         ],
         yAxis: [
           {
             type: "value",
             name: "Number of Restaurants",
-            nameLocation: 'middle', 
+            nameLocation: "middle",
             nameTextStyle: {
-              fontWeight: 'bold' 
-          },
-          nameGap: 46 
+              fontWeight: "bold",
+            },
+            nameGap: 46,
           },
         ],
         series: [
@@ -456,18 +487,18 @@ function showGraph() {
             stack: "Ad",
             label: {
               show: true,
-              position: 'inside'},
+              position: "inside",
+            },
             emphasis: {
               focus: "series",
             },
-            data: newMap.get("index 0")
-            
+            data: newMap.get("index 0"),
           },
           {
             name: "Rating: 3-3.5",
             type: "bar",
             stack: "Ad",
-            label: { show: true},
+            label: { show: true },
             emphasis: {
               focus: "series",
             },
@@ -477,7 +508,7 @@ function showGraph() {
             name: "Rating: 3.5-4",
             type: "bar",
             stack: "Ad",
-            label: { show: true},
+            label: { show: true },
             emphasis: {
               focus: "series",
             },
@@ -487,10 +518,212 @@ function showGraph() {
             name: "Rating: > 4",
             type: "bar",
             stack: "Ad",
-            label: { show: true},
+            label: { show: true },
             emphasis: {
               focus: "series",
             },
+            data: newMap.get("index 3"),
+          },
+        ],
+      };
+
+      if (option && typeof option === "object") {
+        myChart.setOption(option);
+      }
+
+      window.addEventListener("resize", myChart.resize);
+    });
+    // LINE CHART
+    d3.csv("./data/downsampled_zomato.csv").then(function (data) {
+      var json = {};
+
+      data.forEach(function (d) {
+        Object.keys(d).forEach(function (key) {
+          if (!json[key]) {
+            json[key] = [];
+          }
+          json[key].push(d[key]);
+        });
+      });
+
+      cuisines = json["cuisines"];
+      let targetArray = [];
+      ////console.log(cuisines[0]);
+      for (let i = 0; i < cuisines.length; i++) {
+        let arr = cuisines[i].split(", ");
+
+        arr.forEach(function (item) {
+          targetArray.push(item);
+        });
+      }
+
+      const uniqueCount = targetArray.reduce((countMap, str) => {
+        const key = str.toLowerCase().replace(/\s+/g, "");
+        countMap.set(key, (countMap.get(key) || 0) + 1);
+        return countMap;
+      }, new Map());
+
+      const sortedUniqueCount = new Map(
+        [...uniqueCount.entries()].sort((a, b) => b[1] - a[1])
+      );
+
+      const top10cuisines = [...sortedUniqueCount.keys()].slice(0, 10);
+      const counts = top10cuisines.map((key) => sortedUniqueCount.get(key));
+      //console.log(top10cuisines);
+      let map = new Map();
+
+      for (j = 0; j < top10cuisines.length; j++) {
+        const avg_cost_list = new Array(4).fill(0);
+        const avg_count_list = new Array(4).fill(0);
+
+        for (let i = 0; i < json["cuisines"].length; i++) {
+          let avg_cost = json["approx_cost(for two people)"][i];
+          let rate = json["rate"][i];
+          let cuisines = json["cuisines"][i];
+          cuisines = cuisines.split(", ");
+
+          let cuisineExist = cuisines.some((cuisine) => {
+            const cleanedCuisine = cuisine.toLowerCase().replace(/\s+/g, "");
+            return cleanedCuisine == top10cuisines[j];
+          });
+
+          if (cuisineExist) {
+            ////console.log("rate",rate.slice(0,3));
+            let rate_float = parseFloat(rate.slice(0, 3));
+
+            if (rate_float <= 3) {
+              if (!isNaN(parseFloat(avg_cost))) {
+                avg_cost_list[0] += parseInt(avg_cost);
+                avg_count_list[0] += 1;
+              }
+            } else if (rate_float > 3 && rate_float < 3.5) {
+              if (!isNaN(parseFloat(avg_cost))) {
+                avg_cost_list[1] += parseInt(avg_cost);
+                avg_count_list[1] += 1;
+              }
+            } else if (rate_float >= 3.5 && rate_float < 4) {
+              if (!isNaN(parseFloat(avg_cost))) {
+                avg_cost_list[2] += parseInt(avg_cost);
+                avg_count_list[2] += 1;
+              }
+            } else {
+              if (!isNaN(parseFloat(avg_cost))) {
+                avg_cost_list[3] += parseInt(avg_cost);
+                avg_count_list[3] += 1;
+              }
+            }
+          }
+        }
+        avg_cost_list[0] = (avg_cost_list[0] / avg_count_list[0]).toFixed(1);
+        avg_cost_list[1] = (avg_cost_list[1] / avg_count_list[1]).toFixed(1);
+        avg_cost_list[2] = (avg_cost_list[2] / avg_count_list[2]).toFixed(1);
+        avg_cost_list[3] = (avg_cost_list[3] / avg_count_list[3]).toFixed(1);
+        map.set(top10cuisines[j], avg_cost_list);
+
+        ////console.log("count rate: ", count_rate);
+      }
+      //console.log("map: ", map);
+
+      const newMap = new Map([
+        ["index 0", []],
+        ["index 1", []],
+        ["index 2", []],
+        ["index 3", []],
+      ]);
+      ////console.log("---------------------------",newMap);
+
+      for (const [key, arr] of map) {
+        for (let i = 0; i < arr.length; i++) {
+          newMap.get(`index ${i}`).push(arr[i]);
+        }
+      }
+
+      var dom = document.getElementById("line-container");
+      var myChart = echarts.init(dom, null, {
+        renderer: "canvas",
+        useDirtyRect: false,
+      });
+      var app = {};
+
+      var option;
+
+      option = {
+        title: {
+          text: "Stacked Line",
+        },
+        tooltip: {
+          trigger: "axis",
+        },
+        legend: {
+          data: [
+            "Rating: < 3",
+            "Rating: 3-3.5",
+            "Rating: 3.5-4",
+            "Rating: > 4",
+          ],
+        },
+        grid: {
+          left: "3%",
+          right: "4%",
+          bottom: "3%",
+          containLabel: true,
+        },
+        toolbox: {
+          feature: {
+            saveAsImage: {},
+          },
+        },
+        xAxis: {
+          type: "category",
+          boundaryGap: false,
+          data: top10cuisines,
+          name: "Top 10 Cuisines",
+          nameLocation: "middle",
+          nameTextStyle: {
+            fontWeight: "bold",
+          },
+          nameGap: 26,
+        },
+        yAxis: {
+          type: "value",
+          axisLabel: {
+            formatter: function (value) {
+              return ""; // set the formatter to an empty string to hide the tick values
+            },
+          },
+          axisLine: {
+            show: true, // show axis line
+          },
+          name: "Approximate cost for 2 people",
+          nameLocation: "middle",
+          nameTextStyle: {
+            fontWeight: "bold",
+          },
+          nameGap: 26,
+        },
+        series: [
+          {
+            name: "Rating: < 3",
+            type: "line",
+            stack: "Total",
+            data: newMap.get("index 0"),
+          },
+          {
+            name: "Rating: 3-3.5",
+            type: "line",
+            stack: "Total",
+            data: newMap.get("index 1"),
+          },
+          {
+            name: "Rating: 3.5-4",
+            type: "line",
+            stack: "Total",
+            data: newMap.get("index 2"),
+          },
+          {
+            name: "Rating: > 4",
+            type: "line",
+            stack: "Total",
             data: newMap.get("index 3"),
           },
         ],
@@ -510,8 +743,13 @@ function showGraph() {
     title.innerHTML = "Comparison based Performance Analysis";
     pieLabel.style.display = "block";
     gridLabel.style.display = "block";
+
     var bar = document.getElementById("bar-container");
     bar.style.display = "none";
+    var line = document.getElementById("line-container");
+    line.style.display = "none";
+    var tree = document.getElementById("tree-container");
+    tree.style.display = "none";
 
     var pie = document.getElementById("pie-container");
     pie.style.display = "block";
@@ -580,8 +818,8 @@ function showGraph() {
         });
 
         if (cuisineExist) {
-          ////console.log("i: ",i);
-          // ////console.log(typeof json["online_order"][i]);
+          //////console.log("i: ",i);
+          // //////console.log(typeof json["online_order"][i]);
           if (
             json["online_order"][i].toLowerCase() == "yes" &&
             json["book_table"][i].toLowerCase() == "yes"
@@ -615,7 +853,7 @@ function showGraph() {
           }
         }
       }
-      ////console.log("YY, YN, NY, NN", ratingYY,ratingYN,ratingNY,ratingNN);
+      //////console.log("YY, YN, NY, NN", ratingYY,ratingYN,ratingNY,ratingNN);
 
       var dom = document.getElementById("pie-container");
       var myChart = echarts.init(dom, null, {
@@ -743,7 +981,7 @@ function showGraph() {
           }
         }
       }
-      ////console.log("--------------------------", targetArray);
+      //////console.log("--------------------------", targetArray);
       const frequencyMap = targetArray.reduce((map, val) => {
         const key = val.toLowerCase().replace(/\s+/g, "");
         map[key] = (map[key] || 0) + 1;
@@ -751,17 +989,17 @@ function showGraph() {
       }, {});
 
       delete frequencyMap[""];
-      ////console.log("frequenct map",frequencyMap);
+      //////console.log("frequenct map",frequencyMap);
       const mapSize = Object.keys(frequencyMap).length;
 
       let final_freq_map = new Map();
 
       if (mapSize <= 225) {
         // pick all key-value pairs
-        ////console.log("actually less that");
+        //////console.log("actually less that");
         final_freq_map = frequencyMap;
 
-        // ////console.log(allKeyValuePairs);
+        // //////console.log(allKeyValuePairs);
       } else {
         const keys = Object.keys(frequencyMap);
         const randomKeys = [];
@@ -772,10 +1010,10 @@ function showGraph() {
           final_freq_map[randomKey] = frequencyMap[randomKey];
         }
       }
-      ////console.log("final mapping::::::", final_freq_map);
+      //////console.log("final mapping::::::", final_freq_map);
       const keys = Object.keys(frequencyMap);
       const randomKey = keys[Math.floor(Math.random() * keys.length)];
-      //   ////console.log("rand", randomKey);
+      //   //////console.log("rand", randomKey);
 
       var dom = document.getElementById("grid-container");
       var myChart = echarts.init(dom, null, {
@@ -824,13 +1062,13 @@ function showGraph() {
       const data = [];
       const final_freq_map_values = Object.values(final_freq_map);
       let final_freq_map_keys = Object.keys(final_freq_map).sort();
-      ////console.log("keys", final_freq_map_keys.sort());
+      //////console.log("keys", final_freq_map_keys.sort());
       let key_ind = 0;
       for (let i = 0; i < 15; i++) {
         // loop over the columns
         for (let j = 0; j < 15; j++) {
           if (Object.keys(final_freq_map).length <= 0) {
-            ////console.log("empty map");
+            //////console.log("empty map");
             break;
           }
 
@@ -845,7 +1083,7 @@ function showGraph() {
         }
       }
       key_ind = 0;
-      ////console.log("data: ",data[7]);
+      //////console.log("data: ",data[7]);
       option = {
         tooltip: {
           position: "top",
