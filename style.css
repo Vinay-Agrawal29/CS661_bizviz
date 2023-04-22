@@ -39,6 +39,11 @@
   font-size: 12px;
 }
 
+#task3{
+  height: 100vh;
+  width: 100%; 
+}
+
 .box-container {
   display: grid;
   gap: 40px;
